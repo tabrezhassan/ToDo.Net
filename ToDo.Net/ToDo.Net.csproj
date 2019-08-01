@@ -181,6 +181,8 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\ToDoList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\ITaskRepository.cs" />
+    <Compile Include="Repositories\TaskRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\alertifyjs\alertify.css" />
@@ -207,6 +209,8 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Images\logo.png" />
     <Content Include="Content\Images\logo1.png" />
+    <Content Include="Content\Images\Successful.png" />
+    <Content Include="Content\Images\thumbsup.png" />
     <Content Include="Content\PagedList.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -249,6 +253,7 @@
     <Content Include="Views\ToDoLists\Edit.cshtml" />
     <Content Include="Views\ToDoLists\Index.cshtml" />
     <Content Include="Views\ToDoLists\Completed.cshtml" />
+    <Content Include="Views\ToDoLists\TaskCompleted.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

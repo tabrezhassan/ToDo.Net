@@ -32,46 +32,48 @@
 
 <table id="TaskTable" class="table table-striped table">
     <thead>
-        <tr>
-            <th>Task</th>
-            <th>Due Date</th>
-            <th>Task Priority</th>
-            <th>Completed</th>
-            <th>Actions</th>
-        </tr>
+       
+            <tr>
+                <th>Task</th>
+                <th>Due Date</th>
+                <th>Task Priority</th>
+                <th>Completed</th>
+                <th>Actions</th>
+            </tr>
+           
     </thead>
 
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Task)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DueDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TaskPriority)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Completed)
-                </td>
-                @using (Html.BeginForm())
-                {
-                    @Html.AntiForgeryToken()
-                    <td width=170px>
-                        @Html.ActionLink(" ", "Edit", new { id = item.ID }, new { @class = "btn btn-primary glyphicon glyphicon-pencil", title = "Edit Task" })
-                        <a onclick="Delete(@item.ID)" class="btn btn-danger" data-toggle="tooltip" title="Delete Task"><i class="glyphicon glyphicon-remove" style="color:white"></i></a>
-                        @Html.ActionLink(" ", "TaskCompleted", new { id = item.ID }, new { @class = "btn btn-success glyphicon glyphicon-ok", title = "Click to complete Task" })
-
+          
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Task)
                     </td>
-                }
-            </tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DueDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TaskPriority)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Completed)
+                    </td>
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+                        <td width=170px>
+                            @Html.ActionLink(" ", "Edit", new { id = item.ID }, new { @class = "btn btn-primary glyphicon glyphicon-pencil", title = "Edit Task" })
+                            <a onclick="Delete(@item.ID)" class="btn btn-danger" data-toggle="tooltip" title="Delete Task"><i class="glyphicon glyphicon-remove" style="color:white"></i></a>
+                            @Html.ActionLink(" ", "TaskCompleted", new { id = item.ID }, new { @class = "btn btn-success glyphicon glyphicon-ok", title = "Click to complete Task" })
 
-
-        }
-    </tbody>
+                        </td>
+                    }
+                </tr>
+           
+            }
+        </tbody>
 
     <tfoot>
         <tr>

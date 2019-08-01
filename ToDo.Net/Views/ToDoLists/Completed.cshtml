@@ -1,9 +1,11 @@
-﻿@model IEnumerable<ToDo.Net.Models.ToDoList>
+﻿@using PagedList.Mvc
+@*@model PagedList.IPagedList<ToDo.Net.Models.ToDoList>*@
+@model  PagedList.IPagedList<ToDo.Net.Models.ToDoList>
 
 @{
-                /**/
+    /**/
 
-                ViewBag.Title = "Index";
+    ViewBag.Title = "Index";
 }
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
@@ -30,22 +32,22 @@
     <tbody>
         @foreach (var item in Model)
         {
-        <tr>
-            @{
-                var color = "#fff";
-                if (item.DaysToComplete > 4)
-                {
-                    color = "red";
+            <tr>
+                @{
+                    var color = "#fff";
+                    if (item.DaysToComplete > 4)
+                    {
+                        color = "red";
+                    }
+                    else if (item.DaysToComplete >= 3)
+                    {
+                        color = "yellow";
+                    }
+                    else if (item.DaysToComplete < 2)
+                    {
+                        color = "green";
+                    }
                 }
-                else if (item.DaysToComplete >= 3)
-                {
-                    color = "yellow";
-                }
-                else if (item.DaysToComplete < 2)
-                {
-                    color = "green";
-                }
-            }
                 <td>
                     @Html.DisplayFor(modelItem => item.Task)
                 </td>
@@ -83,6 +85,11 @@
         </tr>
     </tfoot>
 </table>
+
+<div class="pagination">
+    @*Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount*@
+    @Html.PagedListPager(Model, page => Url.Action("Completed", new { page }))
+</div>
 
 <br />
 <br />

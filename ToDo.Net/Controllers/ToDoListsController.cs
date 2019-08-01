@@ -9,55 +9,56 @@ using System.Web.Mvc;
 using ToDo.Net.DAL;
 using ToDo.Net.Models;
 using PagedList;
+using ToDo.Net.Repositories;
 
 namespace ToDo.Net.Controllers
 {
     public class ToDoListsController : Controller
     {
-        private ToDoContext db = new ToDoContext();
+
+        private ITaskRepository _taskRepository;
+
+        public ToDoListsController()
+        {
+            _taskRepository = new TaskRepository(new ToDoContext());
+        }
+
+        public ToDoListsController(ITaskRepository taskRepository)
+        {
+            _taskRepository = taskRepository;
+        }
 
         // GET: ToDoLists
 
         [HttpGet]
         public ActionResult Index(int? page)
         {
-            //var todolist = db.ToDoList.Find(Completed == true );
-            var todolist = db.ToDoList.Where(n => (n.Completed) == false).ToList();
-
-            int pageSize = 10;
-            int pageIndex = 1;
-            pageIndex = page.HasValue ? Convert.ToInt32(page) : 1;
-            IPagedList<ToDoList> list = null;
-            list = todolist.ToPagedList(pageIndex, pageSize);
-
+         
+            var list = _taskRepository.GetAll(page);
             return View(list);
-
-           
-
 
         }
 
-        public ActionResult Completed()
+        public ActionResult Completed(int? page)
         {
-            var todolist = db.ToDoList.Where(n => (n.Completed) == true).ToList();
-            
-            return View(todolist.ToList());
+            var list = _taskRepository.Completed(page);
+            return View(list);
         }
 
         // GET: ToDoLists/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            ToDoList toDoList = db.ToDoList.Find(id);
-            if (toDoList == null)
-            {
-                return HttpNotFound();
-            }
-            return View(toDoList);
-        }
+        //public ActionResult Details(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        //    }
+        //    ToDoList toDoList = db.ToDoList.Find(id);
+        //    if (toDoList == null)
+        //    {
+        //        return HttpNotFound();
+        //    }
+        //    return View(toDoList);
+        //}
 
         // GET: ToDoLists/Create
         public ActionResult Create()
@@ -70,34 +71,28 @@ namespace ToDo.Net.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ID,Task,DueDate,TaskPriority")] ToDoList toDoList)
+        public ActionResult Create(ToDoList todolist) //([Bind(Include = "ID,Task,DueDate,TaskPriority")] ToDoList toDoList)
         {
-            toDoList.Task = toDoList.Task.ToUpper();
+            
 
             if (ModelState.IsValid)
             {
-                db.ToDoList.Add(toDoList);
-                db.SaveChanges();
+                _taskRepository.Insert(todolist);
+                _taskRepository.Save();
                 TempData["SuccessMessage"] = "Task Saved Successfully";
                 return RedirectToAction("Index");
             }
 
-            return View(toDoList);
+            return View();
         }
 
         // GET: ToDoLists/Edit/5
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(int id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            ToDoList toDoList = db.ToDoList.Find(id);
-            if (toDoList == null)
-            {
-                return HttpNotFound();
-            }
-            return View(toDoList);
+          
+            ToDoList todolist = _taskRepository.GetById(id);
+
+            return View(todolist);
         }
 
         // POST: ToDoLists/Edit/5
@@ -105,75 +100,72 @@ namespace ToDo.Net.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ID,Task,DueDate,TaskPriority")] ToDoList toDoList)
+        public ActionResult Edit(ToDoList todolist) //([Bind(Include = "ID,Task,DueDate,TaskPriority")] ToDoList toDoList)
         {
-            toDoList.Task = toDoList.Task.ToUpper();
-
+            
             if (ModelState.IsValid)
             {
-                db.Entry(toDoList).State = EntityState.Modified;
-                db.SaveChanges();
+                _taskRepository.Update(todolist);
+                _taskRepository.Save();
                 return RedirectToAction("Index");
             }
-            return View(toDoList);
+            return View(todolist);
         }
 
         // GET: ToDoLists/Delete/5
+        public ActionResult TaskCompleted(int id)
+        {
+            ToDoList todolist = _taskRepository.GetById(id);
+            _taskRepository.TaskCompleted(todolist);
+            return View();
+        }
 
-        public ActionResult TaskCompleted(int id,ToDoList toDoList)
+        [HttpPost]
+        public ActionResult TaskCompleted(ToDoList todolist)
         {
 
             if (ModelState.IsValid)
             {
-                var datecompleted = DateTime.Now.ToShortDateString();
-                var todolist = db.ToDoList.Where(n => n.ID == id).SingleOrDefault();
-                TimeSpan ts = Convert.ToDateTime(datecompleted) - todolist.DueDate;
-
-                todolist.Completed = true;
-                todolist.DateCompleted = Convert.ToDateTime(datecompleted);
-                todolist.DaysToComplete = ts.Days;
-
-                db.Entry(todolist).State = EntityState.Modified;
+                _taskRepository.TaskCompleted(todolist);
                 TempData["SuccessMessage"] = "Task Completed Successfully";
-                db.SaveChanges();
 
                 return RedirectToAction("Index");
             }
-            return View(toDoList);
+            return View(todolist);
 
         }
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            ToDoList toDoList = db.ToDoList.Find(id);
-            if (toDoList == null)
-            {
-                return HttpNotFound();
-            }
-            return View(toDoList);
-        }
+        //public ActionResult Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        //    }
+        //    ToDoList toDoList = db.ToDoList.Find(id);
+        //    if (toDoList == null)
+        //    {
+        //        return HttpNotFound();
+        //    }
+        //    return View(toDoList);
+        //}
 
-        // POST: ToDoLists/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            ToDoList toDoList = db.ToDoList.Find(id);
-            db.ToDoList.Remove(toDoList);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
+        //// POST: ToDoLists/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult DeleteConfirmed(int id)
+        //{
+        //    ToDoList toDoList = db.ToDoList.Find(id);
+        //    db.ToDoList.Remove(toDoList);
+        //    db.SaveChanges();
+        //    return RedirectToAction("Index");
+        //}
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+        //protected override void Dispose(bool disposing)
+        //{
+        //    if (disposing)
+        //    {
+        //        db.Dispose();
+        //    }
+        //    base.Dispose(disposing);
+        //}
     }
 }
